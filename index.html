@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Enquête du jour</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#121c28">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Enquête">
+<style>
+:root{--bg:#dde5ea;--card:#fbfaf4;--ink:#1c2733;--mute:#5d6b78;--tape:#e8c547;--red:#b3302a;--ok:#2a6a45;--line:#c5cfd6;--btn:#1c2733;--btnink:#fbfaf4;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121c28;--card:#1d2938;--ink:#ece6d3;--mute:#9fb0bf;--tape:#e8c547;--red:#e0675f;--ok:#6cc08c;--line:#31404f;--btn:#e8c547;--btnink:#1c2733;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#121c28;--card:#1d2938;--ink:#ece6d3;--mute:#9fb0bf;--tape:#e8c547;--red:#e0675f;--ok:#6cc08c;--line:#31404f;--btn:#e8c547;--btnink:#1c2733;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:560px;margin:0 auto;padding:16px 16px 40px}
+h1,h2{font-family:Georgia,"Times New Roman",serif;margin:0}
+.top{display:flex;justify-content:space-between;align-items:center;font-size:14px;color:var(--mute)}
+.tape{height:10px;margin:10px 0 18px;background:repeating-linear-gradient(-45deg,var(--tape) 0 12px,var(--ink) 12px 24px);border-radius:2px}
+h1{font-size:30px;line-height:1.15}
+.card{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:14px;margin:14px 0}
+.intro{font-family:Georgia,serif;font-size:17px;line-height:1.55}
+.count{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding:8px 0;font-weight:600;display:flex;justify-content:space-between}
+.dots span{display:inline-block;width:12px;height:12px;border-radius:50%;margin-left:5px;border:2px solid var(--ink)}
+.dots span.on{background:var(--ink)}
+h2{font-size:20px}.role{color:var(--mute);font-size:14px;margin-bottom:8px}
+.q{display:block;width:100%;text-align:left;margin:6px 0;padding:11px 12px;border-radius:6px;border:1px solid var(--ink);background:transparent;color:var(--ink);font:inherit;cursor:pointer}
+.q:disabled{opacity:.35;cursor:default}
+.q:focus-visible,.btn:focus-visible{outline:3px solid var(--tape);outline-offset:2px}
+.a{margin:8px 0;padding:8px 10px;border-left:4px solid var(--tape)}
+.a small{display:block;color:var(--mute)}
+.btn{padding:12px 16px;border-radius:6px;border:0;background:var(--btn);color:var(--btnink);font:inherit;font-weight:700;cursor:pointer;margin:4px 6px 4px 0}
+.btn.alt{background:transparent;color:var(--ink);border:1px solid var(--ink)}
+.stamp{display:inline-block;transform:rotate(-6deg);border:4px solid;padding:4px 14px;font:700 24px Georgia,serif;margin:6px 0 12px}
+.stamp.w{color:var(--ok)}.stamp.l{color:var(--red)}
+pre{white-space:pre-wrap;background:var(--bg);padding:10px;border-radius:6px;font:inherit;margin:8px 0}
+.hint{color:var(--mute);font-size:14px}
+.hero{width:100%;height:auto;display:block;margin:0 0 14px}
+.who{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.av{flex:none;width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font:700 17px Georgia,serif;box-shadow:inset 0 -6px 0 rgba(0,0,0,.18)}
+.pic{position:relative;overflow:hidden;border-radius:8px}
+.pic>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hero svg{display:block;width:100%;height:auto}
+.av{width:68px;height:68px;border-radius:50%;box-shadow:0 0 0 3px var(--line)}
+.av svg{width:100%;height:100%;display:block}
+
+/* ===== Mini-jeux : labyrinthes (ajout) ===== */
+#mazes{max-width:560px;margin:0 auto;padding:0 16px 96px}
+.mz-title{font-size:24px;line-height:1.2;margin:4px 0 6px}
+.mz-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
+.mz-tile{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:12px 4px;border:1px solid var(--ink);border-radius:6px;background:var(--card);color:var(--ink);font:inherit;cursor:pointer;text-align:center}
+.mz-tile .mz-fl{font-size:30px;line-height:1.15}
+.mz-tile b{font-size:14px}.mz-tile small{color:var(--mute);font-size:12px;letter-spacing:1px}
+.mz-tile i{position:absolute;top:4px;right:6px;font-style:normal;font-size:13px}
+.mz-tile:focus-visible,.mz-pad button:focus-visible,.mz-fab:focus-visible{outline:3px solid var(--tape);outline-offset:2px}
+.mz-hud{display:flex;justify-content:space-between;gap:8px;font-weight:600;font-size:15px;margin:10px 0 8px;min-height:24px}
+.mz-cvw{display:flex;justify-content:center}
+.mz-cvw canvas{touch-action:none;-webkit-user-select:none;user-select:none;border:2px solid var(--ink);border-radius:8px;max-width:100%}
+.mz-pad{display:grid;grid-template-columns:repeat(3,64px);grid-template-rows:repeat(2,56px);gap:6px;justify-content:center;margin:14px 0 8px}
+.mz-pad button{font:inherit;font-size:22px;border:1px solid var(--ink);border-radius:10px;background:var(--card);color:var(--ink);cursor:pointer;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+.mz-pad button:active{background:var(--tape);color:#1c2733}
+.mz-pad .u{grid-column:2;grid-row:1}.mz-pad .l{grid-column:1;grid-row:2}.mz-pad .d{grid-column:2;grid-row:2}.mz-pad .r{grid-column:3;grid-row:2}
+.mz-st{font-size:26px;margin:4px 0}.mz-cfw{position:absolute;inset:0;overflow:hidden;pointer-events:none}.mz-cf{position:absolute;top:-8%;font-size:22px;animation:mzf 1.9s ease-in forwards}@keyframes mzf{to{transform:translateY(420px) rotate(360deg);opacity:0}}
+.mz-fab{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:20;padding:10px 14px;border-radius:999px;border:0;background:var(--btn);color:var(--btnink);font:inherit;font-weight:700;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,.3);cursor:pointer}
+</style>
+<!-- MONETAG : collez ici la balise (script) de votre vignette, juste avant cette ligne -->
+<meta name="monetag" content="cf866f5f66d6e49fa23e4ce84da122ab">
+</head>
+<body>
+<main id="app"></main>
+<section id="mazes" aria-label="Mini-jeux de labyrinthe"></section>
+<script>
+var Q=["Où étiez-vous à l’heure du crime ?","Quel lien aviez-vous avec la victime ?","Avez-vous vu ou entendu quelque chose ?","Qui soupçonnez-vous ?"];
+var CASES=[
+{t:"Le crime du manoir Valmont",i:"Lord Valmont a été retrouvé mort dans sa bibliothèque, vers 22 h 15. Il devait modifier son testament le lendemain. Trois personnes se trouvaient dans la maison. Une seule ment.",c:0,
+s:[{n:"Hélène Valmont",r:"nièce de la victime",a:["Au salon, au piano, jusqu’à 22 h 30 passées. Le docteur m’a écoutée tout ce temps.","C’est mon oncle qui m’a élevée. J’ignorais tout de ce testament.","Rien. J’étais absorbée par ma musique.","Gaspard rôdait souvent dans les couloirs, le soir."]},
+{n:"Gaspard Lenoir",r:"majordome",a:["À l’office, à ranger l’argenterie. J’ai entendu le piano s’arrêter vers 22 h 10.","Trente ans de service. Nous nous sommes disputés au sujet de mon salaire, rien de grave.","J’ai croisé Mademoiselle Hélène près de l’escalier de la bibliothèque, très pâle, vers 22 h 15.","Le docteur semblait nerveux ce soir."]},
+{n:"Dr Rosen",r:"médecin de famille",a:["Au salon avec Hélène. Je n’ai quitté la pièce qu’à 22 h 30, quand on a crié.","Je soigne Lord Valmont depuis dix ans. Il m’a prêté de l’argent, que je n’ai pas rendu.","Le piano s’est tu vers 22 h 10. Hélène est sortie « prendre l’air ».","Je ne veux accuser personne sans preuve."]}],
+x:"Hélène affirme avoir joué jusqu’à 22 h 30, mais le docteur et le majordome situent l’arrêt du piano vers 22 h 10. Elle a été vue près de la bibliothèque à 22 h 15."},
+{t:"Le diamant de l’hôtel Belvédère",i:"« L’Étoile du Nord », un diamant exposé dans le coffre de l’hôtel, a disparu vers 21 h. Le coffre n’a pas été forcé : quelqu’un avait la clé. Trois suspects, un menteur.",c:1,
+s:[{n:"Mme Castel",r:"cliente de la suite 12",a:["Dans ma suite. J’ai appelé la réception à 21 h pour un oreiller : personne n’a décroché.","Je viens ici chaque hiver. Je connais le diamant, je l’ai toujours admiré.","J’ai entendu des pas rapides vers l’ascenseur de service.","Le concierge est bien pressé, ce soir."]},
+{n:"Marc Dubreuil",r:"concierge",a:["À mon poste, à la réception, toute la soirée. Mon registre le prouve.","Dix ans à l’hôtel. Je suis le gardien de la clé du coffre.","Rien d’anormal. Une soirée calme.","Peut-être la femme de chambre : elle a accès à tous les étages."]},
+{n:"Inès Moreau",r:"femme de chambre",a:["À l’étage, à préparer les suites. Je suis passée à la réception à 21 h 05 : le comptoir était vide.","Je travaille ici depuis deux ans. Je n’ai jamais touché au coffre.","Le concierge est revenu de l’arrière-salle en rajustant sa veste, juste après 21 h.","Je préfère ne pas dire de noms."]}],
+x:"Marc prétend n’avoir pas quitté la réception, mais Mme Castel n’a eu aucune réponse à 21 h et Inès a trouvé le comptoir vide. Il détenait la clé du coffre."},
+{t:"Le manuscrit de la librairie Orphée",i:"Un manuscrit du XVIIe siècle a disparu de la librairie entre 17 h et 18 h. La vitrine était fermée à clé. Trois personnes sont passées. Une seule ment.",c:2,
+s:[{n:"Théo Barral",r:"stagiaire",a:["Au comptoir toute l’après-midi. J’ai fermé la boutique à 18 h.","Je suis stagiaire depuis septembre. Monsieur Orphée me fait confiance.","À 17 h 45, Mme Prat sortait de l’arrière-boutique avec un grand sac.","Je n’ose pas accuser une cliente fidèle."]},
+{n:"Olivier Orphée",r:"libraire",a:["Chez le notaire de 16 h 30 à 18 h 30. J’ai laissé Théo seul avec Mme Prat vers 17 h 30.","C’est ma boutique depuis vingt ans. Ce manuscrit était mon plus bel exemplaire.","Au retour, la vitrine était intacte mais vide.","Il me manque des factures en retard, mais je ne soupçonne pas Théo."]},
+{n:"Mme Prat",r:"collectionneuse",a:["Je ne suis passée qu’à 18 h 30. C’était déjà fermé, j’ai rebroussé chemin.","Cliente depuis des années. J’ai toujours rêvé de ce manuscrit.","Rien. Je n’étais pas là.","Le stagiaire est bien jeune pour surveiller un tel trésor."]}],
+x:"Mme Prat affirme n’être venue qu’à 18 h 30 après la fermeture, mais Olivier l’a laissée dans la boutique à 17 h 30 et Théo l’a vue sortir de l’arrière-boutique à 17 h 45 avec un grand sac."},
+{t:"Sabotage au théâtre du Lys",i:"Armand Roux, vedette de la pièce, a été assommé dans sa loge vers 20 h, avant le lever de rideau. Trois personnes étaient en coulisses.",c:0,s:[{n:"Clara Vidal",r:"actrice",a:["Seule en salle de maquillage jusqu’à 20 h 30, à répéter mon texte.","Il m’a pris le rôle principal, mais nous restons collègues.","Rien, j’étais concentrée.","Le régisseur a les clés de toutes les loges."]},{n:"Vincent Aubry",r:"régisseur",a:["En coulisses, à régler les lumières.","Dix ans de métier avec lui. Il était dur, je l’aimais bien.","À 20 h, j’ai croisé Clara dans le couloir des loges.","Le metteur en scène était furieux contre Armand."]},{n:"Pierre Delmas",r:"metteur en scène",a:["Dans la salle, à vérifier les places.","Il menaçait de partir avant la première. Nous nous sommes disputés.","À 20 h, la salle de maquillage était vide.","Quelqu’un qui voulait son rôle."]}],x:"Clara dit avoir été en maquillage jusqu’à 20 h 30, mais la salle était vide à 20 h et Vincent l’a croisée près des loges."},
+{t:"Le dernier café du critique",i:"Le critique Maurice Fabre s’est effondré après le dessert : son café était empoisonné. Trois personnes l’ont approché ce soir-là.",c:2,s:[{n:"Chef Antoine",r:"chef de cuisine",a:["En cuisine, au coup de feu, toute la soirée.","Sa critique m’a coûté une étoile, mais j’ai tourné la page.","J’ai vu le sommelier remplir une tasse à l’office.","La serveuse était nerveuse."]},{n:"Julie Marchand",r:"serveuse",a:["En salle. J’ai servi le dessert, pas le café.","Je le servais depuis des années. Il laissait de bons pourboires.","Bastien a pris le plateau de café en disant que c’était un honneur.","Je n’accuse personne."]},{n:"Bastien Roy",r:"sommelier",a:["En cave, puis en salle. Je ne sers que le vin, je n’ai pas approché le café.","Il m’avait humilié devant des clients, mais c’est du passé.","Rien. Ce n’est pas mon service.","Le chef avait des raisons de lui en vouloir."]}],x:"Bastien dit ne pas avoir approché le café, mais le chef l’a vu remplir une tasse et Julie l’a vu prendre le plateau."},
+{t:"La fuite des sujets d’examen",i:"Les sujets du partiel de droit ont circulé la veille de l’épreuve. Ils étaient dans un coffre dont trois personnes connaissaient le code.",c:1,s:[{n:"Pr Morel",r:"enseignant",a:["Chez moi, à corriger des copies.","Je n’ai jamais eu de problème avec mes étudiants.","Karim m’a demandé le code du coffre la veille, « pour ranger des documents ».","Je ne vois personne."]},{n:"Karim Saïdi",r:"assistant",a:["J’ai quitté le bureau à 17 h, comme chaque jour.","Je prépare ma thèse avec le professeur. Je lui dois beaucoup.","Rien d’inhabituel.","Mme Lopez avait accès aux clés."]},{n:"Mme Lopez",r:"secrétaire",a:["À mon poste jusqu’à 18 h 30.","Vingt ans au département. Je suis très discrète.","Karim m’a demandé la clé du bureau à 17 h 50 et la photocopieuse a tourné à 18 h.","Je ne fais confiance à personne, sauf au professeur."]}],x:"Karim dit avoir quitté le bureau à 17 h, mais il a demandé la clé à 17 h 50 et la photocopieuse a fonctionné à 18 h. Il connaissait le code."},
+{t:"Le rosier arraché",i:"Le rosier primé de la fête des jardins a été arraché à l’aube. Trois voisins avaient une raison de passer par là.",c:0,s:[{n:"Mme Fournier",r:"rivale au concours",a:["À la fête du village, toute la matinée, avec mes confitures.","Nous concourons depuis dix ans. Son rosier gagne toujours.","Rien, je n’étais pas là.","M. Bernard se plaint de ce rosier depuis des mois."]},{n:"M. Bernard",r:"voisin",a:["Chez moi, à prendre mon café.","Ses racines abîment mon mur, je l’ai dit.","J’ai ramassé un sécateur marqué « Fournier » dans l’allée à 7 h.","Léo savait où était la clé du portail."]},{n:"Léo Cazes",r:"jardinier",a:["En route pour mon premier chantier de la journée.","Je taille ses haies depuis cinq ans.","À 7 h, la voiture de Mme Fournier était garée devant le portail.","Je ne dirais pas de mal d’un voisin."]}],x:"Mme Fournier dit avoir été à la fête, mais sa voiture était devant le portail à 7 h et son sécateur a été retrouvé dans l’allée."},
+{t:"La valise échangée",i:"Une valise contenant des bijoux a été échangée dans le train de 14 h. Trois personnes avaient accès au compartiment.",c:2,s:[{n:"Mme Gaillard",r:"voyageuse",a:["Dans mon compartiment, voiture 3, tout le trajet.","Je transporte souvent des bijoux de famille.","Personne n’est venu contrôler les billets dans ma voiture à 14 h.","Le contrôleur est souvent dans les wagons de queue."]},{n:"M. Perrin",r:"voyageur",a:["Voiture 3, en face de Mme Gaillard.","Je ne la connaissais pas avant le trajet.","J’ai vu le contrôleur entrer dans le wagon à bagages avec un sac.","Je préfère ne pas accuser sans preuve."]},{n:"Bruno Faure",r:"contrôleur",a:["J’ai contrôlé les billets en voiture 3 à 14 h.","Quinze ans de métier, jamais un reproche.","Rien d’anormal sur le trajet.","M. Perrin était très nerveux."]}],x:"Bruno prétend avoir contrôlé la voiture 3 à 14 h, mais Mme Gaillard n’a vu personne passer et M. Perrin l’a vu avec un sac dans le wagon à bagages."},
+{t:"Le master effacé",i:"L’enregistrement final d’un album a été effacé du serveur du studio. Trois personnes avaient accès à la régie ce soir-là.",c:1,s:[{n:"Lola Mercier",r:"chanteuse",a:["En cabine, à enregistrer jusqu’à 20 h 30.","C’est mon album, je n’ai aucun intérêt à le perdre.","La lumière de la régie était encore allumée quand je suis partie.","Max est très stressé par les délais."]},{n:"Sam Perret",r:"ingénieur du son",a:["J’ai quitté le studio à 19 h.","Je mixe ses albums depuis trois ans, je suis fier de celui-ci.","Rien, j’étais déjà rentré.","Quelqu’un qui n’aime pas ce disque."]},{n:"Max Girard",r:"producteur",a:["Dans mon bureau, au téléphone avec le label.","Je finance cet album, je veux qu’il sorte.","Le badge du studio montre une sortie de Sam à 21 h.","Sam voulait être crédité comme coproducteur."]}],x:"Sam dit être parti à 19 h, mais Lola a vu la régie allumée à 20 h 30 et son badge indique une sortie à 21 h."},
+{t:"La copie du musée",i:"Le tableau exposé au musée de Saint-Aubin est une copie. L’original a été remplacé sans qu’on s’en aperçoive.",c:2,s:[{n:"Mme Aubert",r:"conservatrice",a:["Au musée toute la semaine, comme toujours.","Je veille sur cette collection depuis quinze ans.","Paul a emprunté la toile en juin, pour un nettoyage.","Je ne soupçonne personne."]},{n:"Roger Blanc",r:"gardien de nuit",a:["À mon poste, de 20 h à 6 h.","Je connais chaque salle par cœur.","Un lundi soir, j’ai vu Paul sortir de l’atelier avec un grand étui.","Mme Aubert est trop honnête pour ça."]},{n:"Paul Lemoine",r:"restaurateur",a:["Je n’ai pas touché ce tableau depuis l’inventaire de mars.","Je travaille pour le musée depuis trois ans.","Rien d’inhabituel.","Le gardien a les clés de toutes les salles."]}],x:"Paul affirme ne pas avoir touché le tableau depuis mars, mais Mme Aubert l’a vu emprunter la toile en juin et Roger l’a vu sortir avec un grand étui."},
+{t:"Le gâteau de mariage saboté",i:"La pièce montée du mariage a été écrasée juste avant les photos. Trois personnes avaient accès à la réserve.",c:0,s:[{n:"Hugo Lambert",r:"témoin du marié",a:["Au bar avec les invités.","Meilleur ami du marié, je n’ai rien contre le couple.","Rien d’anormal.","La belle-mère n’aimait pas ce gâteau."]},{n:"Mme Roche",r:"belle-mère",a:["En salle, avec la mariée.","Mon gendre me plaît beaucoup, malgré nos différences.","Hugo avait de la crème sur sa manche pendant les photos.","Le traiteur a tout préparé trop vite."]},{n:"Sofia Keller",r:"traiteuse",a:["En cuisine, jusqu’aux photos.","Je ne connaissais pas ces mariés avant ce week-end.","Le gâteau est sorti à 15 h. Hugo est entré dans la réserve avec les clés.","Je ne me permettrais pas d’accuser un invité."]}],x:"Hugo dit être resté au bar, mais il est entré dans la réserve à 15 h et avait de la crème sur sa manche."},
+{t:"Les échantillons contaminés",i:"Les échantillons d’une étude ont été contaminés dans la nuit. Trois personnes avaient un badge d’accès.",c:1,s:[{n:"Dr Imane Haddad",r:"directrice du laboratoire",a:["Chez moi, avec mes enfants.","Ce projet est mon plus gros contrat.","Lucas m’a écrit à 22 h qu’il vérifiait un congélateur.","Je n’accuse personne."]},{n:"Lucas Moreau",r:"technicien",a:["J’ai quitté le laboratoire à 19 h.","Je gère le matériel depuis deux ans.","Rien, j’étais parti.","Yanis restait souvent tard."]},{n:"Yanis Bakri",r:"doctorant",a:["À la bibliothèque jusqu’à 21 h 30, puis je suis repassé au laboratoire.","Je prépare ma thèse sur ces échantillons.","À 22 h, j’ai croisé Lucas dans le couloir, il disait vérifier un congélateur.","Lucas a eu un avertissement le mois dernier."]}],x:"Lucas dit être parti à 19 h, mais il a écrit à Imane à 22 h depuis le laboratoire et Yanis l’y a croisé."},
+{t:"Le coffre du capitaine",i:"Pendant la croisière, le coffre du capitaine a été vidé à 3 h du matin. Trois personnes étaient éveillées.",c:2,s:[{n:"Lt Moreau",r:"officier de quart",a:["Sur la passerelle, à surveiller le radar.","Le capitaine est mon ami depuis vingt ans.","Rien, la nuit était calme.","Le cuisinier a la clé des réserves proches de la cabine."]},{n:"Mme Vasseur",r:"passagère",a:["Sur le pont, à prendre l’air.","Je suis invitée du capitaine pour la traversée.","Dario est passé à 3 h avec un chariot, près des cabines.","Le lieutenant est resté sur la passerelle, je l’ai vu."]},{n:"Dario Costa",r:"cuisinier",a:["Dans ma cuisine, à préparer la pâte du petit-déjeuner.","Je suis à bord depuis deux saisons.","Rien, personne n’est venu en cuisine cette nuit.","La passagère se promène beaucoup la nuit."]}],x:"Dario dit être resté en cuisine, mais Mme Vasseur l’a croisé à 3 h avec un chariot près des cabines."},
+{t:"Le phare éteint",i:"La lumière du phare s’est éteinte à 23 h, et un bateau a frôlé les rochers. Trois personnes se trouvaient sur place. Une seule ment.",c:1,s:[{n:"Yann Le Goff",r:"gardien du phare",a:["En haut de la tour jusqu’à 22 h 30, puis ma ronde. À 22 h 45, j’ai aperçu la barque de Loïc au pied de l’escalier.","Je garde ce phare depuis douze ans.","Un moteur de barque vers 22 h 45, puis le noir complet à 23 h.","Loïc se plaint depuis des mois de cette lumière qui effraie les poissons."]},
+{n:"Loïc Mahé",r:"pêcheur",a:["Au port, à réparer mes filets, de 21 h à minuit. Personne ne m’a quitté des yeux.","Voisin du phare depuis toujours. Nous nous croisons chaque matin.","Rien d’anormal, la mer était calme.","Peut-être la nouvelle ingénieure, elle touche à tout."]},
+{n:"Dr Nora Salmon",r:"ingénieure",a:["Dans le local technique jusqu’à 22 h, puis dans ma chambre. Un moteur de barque m’a réveillée vers 22 h 45.","Je suis venue vérifier la nouvelle lampe.","Ce moteur, c’était celui de la barque de Loïc, je le reconnais entre mille.","Je préfère attendre des preuves."]}],x:"Loïc affirme n’avoir pas quitté le port, mais Yann a vu sa barque au pied du phare à 22 h 45 et Nora a reconnu son moteur au même moment."},
+{t:"Le vélo du champion",i:"Le vélo de course de la favorite a disparu du garage avant le départ de 9 h. Trois personnes avaient accès à la place du village.",c:0,s:[{n:"Rémi Aubin",r:"mécanicien",a:["Au café de la place dès 7 h, pour mon petit-déjeuner.","Je règle ses vélos depuis cinq ans.","Rien vu. Le garage était fermé quand je suis passé.","Maëlle était très tendue avant la course."]},
+{n:"Maëlle Dufour",r:"rivale",a:["À l’échauffement sur la piste, à partir de 7 h 15.","Nous courons dans la même catégorie. Une rivalité sportive, rien de plus.","À 7 h 30, j’ai vu Rémi sortir du garage avec un long sac sur l’épaule.","Je ne veux pas accuser sans preuve."]},
+{n:"Pierre Vidal",r:"voisin",a:["Chez moi, devant mon café. De ma fenêtre, je vois toute la place.","Je connais la championne depuis son enfance.","Le café de la place n’a ouvert qu’à 8 h ce matin, à cause d’une panne.","Rémi avait l’air pressé en traversant la place."]}],x:"Rémi dit avoir pris son petit-déjeuner au café dès 7 h, mais le café n’a ouvert qu’à 8 h (Pierre) et Maëlle l’a vu sortir du garage à 7 h 30 avec un long sac."},
+{t:"La recette volée",i:"Le carnet de recettes de la pâtisserie du Fournil d’Or a disparu pendant la nuit. Trois personnes avaient la clé du laboratoire.",c:2,s:[{n:"Léa Fontaine",r:"apprentie",a:["Arrivée à 6 h 45, le carnet n’était déjà plus là.","Je travaille ici depuis six mois, la patronne me fait confiance.","Le camion de Bruno est resté garé devant la boutique jusqu’à 6 h 30.","Je n’ose accuser personne."]},
+{n:"Mme Garnier",r:"pâtissière rivale",a:["Chez moi, à préparer ma propre boutique.","Nous nous concurrençons depuis des années, mais poliment.","À 6 h 15, en passant, j’ai vu Bruno par la vitre du laboratoire, un carnet à la main.","Les livreurs ont tous une clé, c’est imprudent."]},
+{n:"Bruno Petit",r:"livreur",a:["Livraison à 5 h, puis je suis reparti aussitôt sur ma tournée.","Dix ans que je livre le beurre et la farine.","Rien remarqué, il faisait encore nuit.","La rivale, peut-être. Elle rôde souvent par ici."]}],x:"Bruno prétend être reparti dès 5 h, mais son camion est resté devant la boutique jusqu’à 6 h 30 (Léa) et Mme Garnier l’a vu avec le carnet à 6 h 15."},
+{t:"Le trophée du club de tennis",i:"Le trophée du tournoi a disparu de la vitrine du club entre 17 h et 18 h 30. Trois personnes étaient au club.",c:1,s:[{n:"Alice Morel",r:"présidente du club",a:["Dans mon bureau à préparer la remise des prix.","Je dirige le club depuis huit ans.","Le court 2 était fermé pour travaux tout l’après-midi, le filet était démonté.","Je ne soupçonne personne."]},
+{n:"Karim Saïdi",r:"entraîneur",a:["Sur le court 2 avec un élève, de 17 h à 18 h 30.","Je forme les jeunes du club depuis cinq ans.","Rien vu, j’étais concentré sur l’entraînement.","Zoé traîne souvent près de la vitrine."]},
+{n:"Zoé Perrin",r:"joueuse",a:["Au vestiaire, puis à la buvette jusqu’à 18 h.","C’est mon club depuis l’enfance.","J’ai croisé Karim près de la vitrine à 17 h 40, il tenait la clé.","Je ne veux pas accuser sans preuve."]}],x:"Karim dit avoir entraîné un élève sur le court 2, mais ce court était fermé pour travaux (Alice) et Zoé l’a vu près de la vitrine avec la clé à 17 h 40."},
+{t:"Le colis disparu",i:"Un colis recommandé a disparu du bureau de poste vers 10 h. La porte de l’arrière-salle n’a pas été forcée.",c:0,s:[{n:"Gilles Maurin",r:"facteur",a:["En tournée de 8 h à 12 h, je ne suis pas repassé au bureau.","Quinze ans de métier, jamais un incident.","Rien vu, j’étais sur la route.","Les clients tournent souvent près du comptoir."]},
+{n:"Rita Costa",r:"guichetière",a:["Au guichet toute la matinée.","Je travaille ici depuis trois ans.","Gilles est revenu au bureau à 10 h chercher son téléphone, je l’ai vu près du tri.","Je préfère ne rien dire de plus."]},
+{n:"Mme Lenoir",r:"cliente",a:["Au bureau de 10 h à 10 h 15, pour envoyer une lettre.","Je viens chaque semaine.","À 10 h 05, j’ai croisé Gilles sortant de l’arrière-salle avec un petit carton.","Rita avait l’air gênée."]}],x:"Gilles affirme n’être pas repassé au bureau, mais Rita l’a vu près du tri à 10 h et Mme Lenoir l’a croisé à 10 h 05 sortant de l’arrière-salle avec un carton."},
+{t:"Le serveur du lycée piraté",i:"Les notes du lycée ont été modifiées depuis la salle serveur à 14 h. La porte n’a pas été forcée.",c:2,s:[{n:"Pr Aubry",r:"enseignant",a:["Devant ma classe de 13 h 30 à 15 h.","Je suis dans cet établissement depuis vingt ans.","M. Faure m’a ouvert la salle serveur à 14 h en personne, pour récupérer un cours.","Je préfère ne pas accuser."]},
+{n:"Salomé Girard",r:"déléguée des élèves",a:["Au CDI, à réviser avec des amis.","Je suis déléguée depuis la seconde.","À 14 h 10, j’ai vu M. Faure devant l’écran de la salle serveur.","Je ne veux pas accuser sans preuve."]},
+{n:"M. Faure",r:"technicien",a:["En congé aujourd’hui, chez moi toute la journée.","Je m’occupe du réseau du lycée depuis dix ans.","Rien, puisque je n’étais pas là.","Les élèves connaissent parfois les mots de passe."]}],x:"M. Faure assure être resté en congé chez lui, mais Pr Aubry affirme qu’il lui a ouvert la salle serveur à 14 h et Salomé l’a vu devant l’écran à 14 h 10."},
+{t:"La cloche du village",i:"La cloche de l’église a disparu dans la nuit, vers 3 h. Trois habitants pouvaient avoir vu quelque chose.",c:2,s:[{n:"M. Dumas",r:"maire",a:["Chez moi, endormi, jusqu’au matin.","Je suis maire depuis dix ans.","Vers 3 h, j’ai entendu un gros camion de ferraille sur la place. Seul Bastien en possède un.","Il faut attendre l’enquête."]},
+{n:"Anaïs Roux",r:"institutrice",a:["Chez moi, à corriger des cahiers jusque tard.","Les enfants adorent cette cloche.","À 3 h 10, par ma fenêtre, j’ai vu le camion de Bastien devant l’église.","Je ne veux pas accuser sans preuve."]},
+{n:"Bastien Roy",r:"ferrailleur",a:["Chez moi, endormi. Mon camion était au garage.","Je rachète du métal dans tout le canton.","Rien entendu de la nuit.","Le maire veut toujours faire changer la cloche."]}],x:"Bastien dit que son camion est resté au garage, mais le maire a entendu un camion de ferraille vers 3 h et Anaïs a vu le sien devant l’église à 3 h 10."},
+{t:"Le costume du carnaval",i:"Le costume du roi du carnaval a disparu de l’atelier à 14 h, juste avant le défilé.",c:2,s:[{n:"Camille Bessy",r:"couturière",a:["Dans l’atelier jusqu’à 14 h, puis chez le teinturier.","J’ai cousu ce costume pendant trois mois.","À 14 h 10, j’ai vu Rose repartir de l’atelier avec une housse.","Je ne veux pas accuser sans preuve."]},
+{n:"Gaston Thiry",r:"chef de char",a:["Sur la place, à préparer le char.","Je suis chef de char depuis dix ans.","Rose m’a demandé la clé de l’atelier à 14 h.","Elle voulait gagner le concours, c’est connu."]},
+{n:"Rose Marchand",r:"rivale",a:["Au défilé, devant l’estrade avec mes amis, depuis le début de l’après-midi.","Je n’ai jamais mis les pieds dans cet atelier.","Rien vu, j’étais avec mes amis.","Gaston est jaloux de tout le monde."]}],x:"Rose affirme n’avoir jamais mis les pieds à l’atelier, mais Gaston lui a donné la clé à 14 h et Camille l’a vue en repartir avec une housse à 14 h 10."},
+{t:"Le violon de la salle de concert",i:"Un violon de collection a disparu de sa loge à 20 h 55, juste avant le concert.",c:1,s:[{n:"Sofia Marin",r:"violoniste",a:["En loge, à m’accorder jusqu’à 20 h 45.","Ce violon appartient à l’orchestre depuis trente ans.","À 20 h 50, le bureau du chef était vide : j’ai frappé, personne.","Je préfère ne rien dire de plus."]},
+{n:"Édgar Roche",r:"chef d’orchestre",a:["Dans mon bureau avec le trésorier jusqu’à 21 h.","Je dirige cet orchestre depuis quinze ans.","Rien d’anormal avant le concert.","Le régisseur a toutes les clés."]},
+{n:"Hector Blanc",r:"régisseur",a:["Aux coulisses, à régler les lumières.","Je veille sur la salle depuis vingt ans.","À 20 h 55, j’ai vu Édgar courir dans le couloir vers la loge.","Je n’aime pas accuser un chef."]}],x:"Édgar dit avoir été dans son bureau avec le trésorier jusqu’à 21 h, mais Sofia l’a trouvé vide à 20 h 50 et Hector l’a vu courir vers la loge à 20 h 55."},
+{t:"Le pique-nique saccagé",i:"Les paniers du pique-nique de la fête de famille ont été renversés dans la clairière vers 11 h 20.",c:0,s:[{n:"Léo Garnier",r:"cousin",a:["À la pêche à l’étang toute la matinée avec mon oncle.","Je vois la famille deux fois par an.","Rien vu, j’étais au bord de l’eau.","Julie était bizarre ce matin."]},
+{n:"Oncle Marcel",r:"pêcheur du dimanche",a:["À l’étang, mais Léo m’a laissé seul entre 11 h et midi, pour « aller chercher des appâts ».","Je pêche ici depuis trente ans.","Les appâts, il ne les avait pas rapportés.","Je ne soupçonne pas ma famille."]},
+{n:"Julie Brun",r:"voisine invitée",a:["Sur la nappe, à préparer les assiettes.","Je suis invitée chaque année.","À 11 h 20, j’ai vu Léo près des paniers, dans la clairière.","Je ne veux pas accuser sans preuve."]}],x:"Léo dit avoir pêché toute la matinée avec son oncle, mais Marcel l’a vu partir à 11 h pour des appâts jamais rapportés et Julie l’a vu près des paniers à 11 h 20."}
+];
+var THEMES=[["#5b2a3a","#1c1420","🏰"],["#1e4d6b","#0f2233","💎"],["#6b4a1e","#2a1c0c","📜"],["#7a1c2e","#2b0b14","🎭"],["#2e5a3c","#10241a","🍽️"],["#3a3f7a","#14163a","🎓"],["#3f7a2e","#12260e","🌹"],["#5a5f6b","#1b1e25","🚆"],["#6b2e7a","#220f2b","🎙️"],["#7a5a1e","#2a200b","🖼️"],["#8a4a62","#2b1420","🎂"],["#1e6b66","#0b2523","🧪"],["#1e4a7a","#0b1a2e","🚢"],["#14405a","#0a1c28","⛵"],["#3f7a2e","#12260e","🚴"],["#8a5a2a","#2a1a0c","🥐"],["#2e6a3c","#10261a","🏆"],["#7a6a1e","#2a240c","📦"],["#3a3f7a","#14163a","💻"],["#6b5a2e","#241c0e","🔔"],["#8a1e5a","#2b0b1e","🎪"],["#5a2e6b","#1c0f26","🎻"],["#4a7a2e","#162610","🧺"]],AV=["#c8553d","#3d8bc8","#7b5bc8"];
+function mx(){return 6+(S.bonus||0)+(S.shared?1:0)+(streak()>=7?2:streak()>=3?1:0)}
+function defs(){return '<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><filter id="wc" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="2" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.5" result="d"/><feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="2" result="g"/><feColorMatrix in="g" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .35 0 0 0 -.05" result="gr"/><feComposite in="gr" in2="d" operator="in" result="gc"/><feMerge><feMergeNode in="d"/><feMergeNode in="gc"/></feMerge></filter></defs></svg>'}
+function face(i,nm,rl){
+ rl=(rl||"").toLowerCase();
+ var f=/^(Mme|Hélène|Clara|Julie|Lola|Sofia|Inès|Dr Imane|Maëlle|Léa|Alice|Rita|Salomé|Anaïs|Camille|Rose|Dr Nora|Zoé)/.test(nm);
+ function r(k,n){return(((i*31+k*17+3)*2654435761>>>0)>>>12)%n}
+ var old=/majordome|libraire|maire|gardien|médecin|collectionneuse|capitaine|belle-mère|présidente|conservatrice|enseignant|directrice|concierge|chef de cuisine|oncle/.test(rl)||/^Pr /.test(nm),
+  ag=old?2:r(8,3),si=r(1,8),
+  sk=["#f6dcc3","#f3d2b5","#e5b890","#d29e72","#c98f63","#9a6540","#6b432a","#46291a"][si],
+  hc=["#1b1410","#2a1a10","#3a2616","#6b4423","#a8742f","#d2a95a","#8a3a1e"][r(2,7)],
+  ec=si>=5?"#1d140d":["#2a1d14","#3b2a1c","#2f5d7a","#4a6a3a"][r(12,4)],
+  cl=["#7a2e3a","#2f5d7a","#3d6b4a","#6b4f2a","#4a3a6b","#8a3b2a","#2a3b4a"][r(3,7)],
+  bg=["#d9c7a8","#b9c9d3","#cdbdcd","#c3cfb5"][r(6,4)],
+  hs=r(4,5),m=r(11,3),ac=r(5,6),jb="cas",tc=cl,o="",B="",F="",T="",A="",cap="",gold=0;
+ if(ag==2||(ag==1&&r(9,4)==0))hc=["#8f8f94","#d9d5cc","#b8b4aa"][r(2,3)];
+ if(!f&&ag<2&&hs==3)hs=0;
+ if(f&&ag==2&&hs==1)hs=2;
+ var H='fill="'+hc+'"',bald=!f&&hs==3;
+ if(/^Dr /.test(nm)||/médecin|laboratoire|doctorant/.test(rl))jb="doc";
+ else if(/chef de cuisine|cuisinier|pâtissière|traiteuse/.test(rl))jb="chef";
+ else if(/majordome|concierge|sommelier|serveuse|femme de chambre|régisseur/.test(rl))jb="srv";
+ else if(/gardien|contrôleur|officier|facteur|capitaine|livreur|mécanicien|ferrailleur|technicien|jardinier|ingénieur du son/.test(rl))jb="uni";
+ else if(/pêcheur/.test(rl))jb="fish";
+ else if(/maire/.test(rl))jb="maire";
+ else if(/enseignant|institutrice|assistant|secrétaire|libraire|conservatrice|guichetière|^Pr /.test(rl+" "+nm))jb="tea";
+ else if(/chef d’orchestre|metteur en scène|producteur|restaurateur|présidente|directrice/.test(rl))jb="suit";
+ else if(/actrice|chanteuse|violoniste|couturière/.test(rl))jb="art";
+ if(f){
+  if(hs==0)B='<path d="M26 50C23 20 77 20 74 50c0 8 1 14-3 18H29c-4-4-3-10-3-18z" '+H+'/>';
+  else if(hs==1)B='<path d="M25 50C21 18 79 18 75 50c0 16 3 30-5 40H30c-8-10-5-24-5-40z" '+H+'/>';
+  else if(hs==2)B='<circle cx="50" cy="14" r="9" '+H+'/>';
+  else if(hs==3)B='<ellipse cx="50" cy="38" rx="31" ry="29" '+H+'/>';
+ }else if(hs==2)B='<ellipse cx="50" cy="37" rx="24" ry="23" '+H+'/>';
+ if(!bald)F='<path d="M30 42C27 16 73 16 70 42C66 31 58 27 50 27S34 31 30 42z" '+H+'/>'+(!f&&hs==1?'<path d="M42 24q12 2 26 12" stroke="#fff" opacity=".25" fill="none" stroke-width="1.5"/>':'');
+ else if(ag==2)F='<ellipse cx="31.5" cy="46" rx="3.5" ry="7" '+H+'/><ellipse cx="68.5" cy="46" rx="3.5" ry="7" '+H+'/>';
+ var u={doc:"#f4f6f8",chef:"#fafafa",srv:"#1d1d22",fish:"#e0b020",maire:"#2a3b4a",suit:"#2a2f3a",art:f?cl:"#3a2f2a",tea:cl},rc=/gardien/.test(rl)?"#1f3a5f":/contrôleur/.test(rl)?"#23395b":/officier|capitaine/.test(rl)?"#1f3a5f":/facteur/.test(rl)?"#e8c32a":/livreur/.test(rl)?"#b3302a":/mécanicien|technicien/.test(rl)?"#2a4a7a":/ferrailleur/.test(rl)?"#55595f":/jardinier/.test(rl)?"#4a7a3a":"#2a3b4a";
+ if(jb=="uni")tc=rc;else if(u[jb])tc=u[jb];
+ if(/officier|capitaine/.test(rl))gold=1;
+ T='<path d="M6 100C6 76 26 68 50 68s44 8 44 32z" fill="'+tc+'"/>';
+ if(jb=="doc")T+='<path d="M37 69l13 26 13-26z" fill="#7aa6c9"/><path d="M37 69l-4 31M63 69l4 31" stroke="#9aa5b0" fill="none"/><path d="M42 71q-3 14 8 18q11-4 8-18" stroke="#333" stroke-width="1.3" fill="none"/><circle cx="50" cy="90" r="2.4" fill="#555"/>';
+ else if(jb=="chef")T+='<path d="M50 69v31" stroke="#c9c9c9"/><circle cx="43" cy="80" r="1.5" fill="#bbb"/><circle cx="43" cy="90" r="1.5" fill="#bbb"/><circle cx="57" cy="80" r="1.5" fill="#bbb"/><circle cx="57" cy="90" r="1.5" fill="#bbb"/><path d="M40 69q10 7 20 0v5q-10 6-20 0z" fill="#c0392b"/>';
+ else if(jb=="srv")T+='<path d="M37 69l13 17 13-17z" fill="#f4efe4"/><path d="M44 74l6 3-6 3zM56 74l-6 3 6 3z" fill="#8a1e30"/><circle cx="50" cy="77" r="1.6" fill="#8a1e30"/>';
+ else if(jb=="uni")T+='<path d="M37 69l13 13 13-13z" fill="#e8eef5"/><path d="M48 72h4l1 16h-6z" fill="#222"/><circle cx="40" cy="90" r="1.4" fill="'+(gold?"#e0b040":"#ccc")+'"/><circle cx="60" cy="90" r="1.4" fill="'+(gold?"#e0b040":"#ccc")+'"/>'+(gold?'<path d="M9 84q6-9 16-11l-2 9zM91 84q-6-9-16-11l2 9z" fill="#e0b040"/>':'');
+ else if(jb=="fish")T+='<path d="M30 69q20 14 40 0v6q-20 14-40 0z" fill="#b8860b"/><path d="M38 71q12 9 24 0" fill="#1f3a5f"/>';
+ else if(jb=="maire")T+='<path d="M37 69l13 17 13-17z" fill="#f4efe4"/><path d="M24 74L80 102M27 72L83 100M30 70L86 98" stroke-width="3.2" fill="none" stroke="#2a4a9a"/><path d="M27 72L83 100" stroke="#fff" stroke-width="3.2"/><path d="M30 70L86 98" stroke="#c0392b" stroke-width="3.2"/>';
+ else if(jb=="tea")T+='<path d="M37 69l13 17 13-17z" fill="#f4efe4"/><path d="M37 69l-4 31M63 69l4 31" stroke="#000" opacity=".2" fill="none"/>'+(f?'<path d="M36 70q14 8 28 0" stroke="#e8c547" stroke-width="3" fill="none"/>':'<path d="M48 72h4l1 14h-6z" fill="#8a2a2a"/>');
+ else if(jb=="suit")T+='<path d="M37 69l13 17 13-17z" fill="#f4efe4"/><path d="M37 69l-4 31M63 69l4 31" stroke="#fff" opacity=".25" fill="none"/>'+(f?'<path d="M38 72q12 10 24 0" stroke="#fff" stroke-dasharray="1.5 2.5" stroke-width="2" fill="none"/>':'<path d="M44 74l6 3-6 3zM56 74l-6 3 6 3z" fill="#8a2a2a"/><circle cx="50" cy="77" r="1.6" fill="#8a2a2a"/>');
+ else if(jb=="art"){
+  if(/couturière/.test(rl))T+='<path d="M36 70q14 12 28 0" stroke="#e8c547" stroke-width="4" fill="none"/><path d="M40 73v3M45 75v3M50 76v3M55 75v3M60 73v3" stroke="#6b4f2a" stroke-width=".8"/>';
+  else if(f)T+='<path d="M34 69q16 20 32 0z" fill="'+sk+'"/><path d="M38 78q12 8 24 0" stroke="#e0b040" stroke-width="1.5" fill="none"/>';
+  else T+='<path d="M37 69l13 17 13-17z" fill="#f4efe4"/><path d="M44 74l6 3-6 3zM56 74l-6 3 6 3z" fill="#222"/>';
+ }else{
+  T+=f?'<path d="M38 69q12 10 24 0" stroke="#000" opacity=".2" fill="none"/>':'<path d="M37 69l13 17 13-17z" fill="#f4efe4"/><path d="M37 69l-4 31M63 69l4 31" stroke="#000" opacity=".2" fill="none"/>';
+ }
+ o+='<rect width="100" height="100" fill="'+bg+'"/><rect width="100" height="100" fill="url(#sh'+i+')"/>'+B+T;
+ o+='<rect x="43" y="56" width="14" height="16" rx="5" fill="'+sk+'"/><path d="M43 66q7 6 14 0v-4h-14z" fill="#000" opacity=".15"/>';
+ o+='<ellipse cx="31" cy="46" rx="3" ry="5" fill="'+sk+'"/><ellipse cx="69" cy="46" rx="3" ry="5" fill="'+sk+'"/><ellipse cx="50" cy="44" rx="19" ry="23" fill="'+sk+'"/><ellipse cx="50" cy="44" rx="19" ry="23" fill="url(#sh'+i+')"/>';
+ if(f)o+='<ellipse cx="37" cy="54" rx="4" ry="2.5" fill="#e07a6a" opacity=".22"/><ellipse cx="63" cy="54" rx="4" ry="2.5" fill="#e07a6a" opacity=".22"/>';
+ o+='<g fill="#fff"><ellipse cx="42" cy="44" rx="3.6" ry="2.2"/><ellipse cx="58" cy="44" rx="3.6" ry="2.2"/></g><g fill="'+ec+'"><circle cx="42" cy="44" r="1.8"/><circle cx="58" cy="44" r="1.8"/></g><g fill="#fff"><circle cx="42.6" cy="43.4" r=".5"/><circle cx="58.6" cy="43.4" r=".5"/></g>';
+ if(f)o+='<path d="M38.5 42.5q3.5-3 7 0M54.5 42.5q3.5-3 7 0" stroke="#1b1410" stroke-width="1" fill="none"/>';
+ o+='<path d="M37 '+(m==2?38:39)+'q5-3 10-'+(m==2?2:1)+'M53 '+(m==2?36:38)+'q5-1 10 '+(m==2?3:1)+'" stroke="'+hc+'" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M50 46q-3 8-1 10q3 1 4-1" stroke="#000" opacity=".25" fill="none" stroke-width="1.2"/>';
+ o+='<path d="'+(m==0?'M44 62q6 4 12 0q-6 1.5-12 0z':m==1?'M44 63h12':'M44 64q6-3 12 0')+'" stroke="'+(f?'#a8454a':'#7a3a2a')+'" stroke-width="1.4" fill="'+(m==0?(f?'#a8454a':'#8a4a3a'):'none')+'" stroke-linecap="round"/>';
+ if(ag==2)o+='<path d="M36 36q14-3 28 0M34 52q-2 5 0 9M66 52q2 5 0 9" stroke="#000" opacity=".16" fill="none" stroke-width="1.1"/>';
+ if(!f&&!bald){
+  if(ac<=1)o+='<path d="M43 59q7-3 14 0q-7 3-14 0z" '+H+'/>';
+  else if(ac==2||(ag==2&&ac==3))o+='<path d="M31 52q2 22 19 24q17-2 19-24q-5 10-19 10q-14 0-19-10z" '+H+' opacity=".9"/>';
+ }
+ if(!bald||ag==2)o+=F;
+ if(jb=="tea"||(jb=="cas"&&ac==3&&r(6,2)==0)||(jb=="art"&&!f&&ac==4))o+='<g fill="none" stroke="#2a2a2a" stroke-width="1.4"><circle cx="42" cy="44" r="6"/><circle cx="58" cy="44" r="6"/><path d="M48 44h4"/></g>';
+ if(f&&(jb=="art"||jb=="suit"||r(13,3)==0))o+='<circle cx="31" cy="52" r="1.8" fill="#e0b040"/><circle cx="69" cy="52" r="1.8" fill="#e0b040"/>';
+ if(jb=="chef")o+='<ellipse cx="50" cy="16" rx="19" ry="11" fill="#fff"/><rect x="34" y="18" width="32" height="13" rx="3" fill="#fff"/><rect x="34" y="27" width="32" height="4" fill="#e6e6e6"/>';
+ if(jb=="uni"&&/gardien|contrôleur|officier|capitaine|facteur|livreur|mécanicien|ferrailleur/.test(rl))o+='<path d="M27 36q23-18 46 0l2 5H25z" fill="'+rc.replace("#1f3a5f",gold?"#f4f4f4":"#1f3a5f")+'"/><path d="M23 40q27-6 54 0l-2 4H25z" fill="#000" opacity=".35"/>'+(gold?'<circle cx="50" cy="30" r="3" fill="#e0b040"/>':'');
+ if(jb=="uni"&&/jardinier/.test(rl))o+='<ellipse cx="50" cy="31" rx="30" ry="5" fill="#d9b860"/><path d="M33 31q2-16 17-16t17 16z" fill="#d9b860"/><path d="M33 29h34" stroke="#8a5a2a" stroke-width="2"/>';
+ if(jb=="fish")o+='<path d="M28 38q22-18 44 0l1 5H27z" fill="#1f3a5f"/><path d="M27 41h46" stroke="#fff" opacity=".3"/>';
+ if(/metteur en scène/.test(rl))o+='<ellipse cx="46" cy="27" rx="24" ry="8" fill="#8a1e30"/><circle cx="50" cy="19" r="2" fill="#8a1e30"/>';
+ return '<svg viewBox="0 0 100 100" role="img" aria-label="Portrait de '+nm+'"><defs><radialGradient id="sh'+i+'" cx=".35" cy=".3" r=".8"><stop offset=".5" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".3"/></radialGradient></defs><g filter="url(#wc)">'+o+'</g></svg>';
+}
+var SC=[["b",3,"g","🏰"],["b",5,"f","💎"],["s","📚"],["t","🎭"],["i","🍽️"],["b",4,"p","🎓"],["o","g","🌹"],["o","r","🚆"],["i","🎙️"],["b",5,"p","🖼️"],["i","🎂"],["b",4,"f","🧪"],["o","w","🚢"],["o","w","⛵"],["o","g","🚴"],["i","🥐"],["b",3,"f","🏆"],["b",2,"","📦"],["b",4,"p","💻"],["o","g","🔔"],["t","🎪"],["t","🎻"],["o","g","🧺"]];
+function scene(ci,T){
+ var s=SC[ci],t=s[0],e=s[s.length-1],o='',x,y,k,top=0;
+ o+='<defs><linearGradient id="sy'+ci+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+T[1]+'"/><stop offset="1" stop-color="'+T[0]+'"/></linearGradient></defs><rect width="400" height="150" fill="url(#sy'+ci+')"/><circle cx="345" cy="30" r="15" fill="#f4e7b0"/><g fill="#fff" opacity=".75"><circle cx="40" cy="26" r="1.5"/><circle cx="95" cy="48" r="1"/><circle cx="160" cy="18" r="1.5"/><circle cx="250" cy="40" r="1"/><circle cx="300" cy="64" r="1"/></g>';
+ if(t=="b"){var n=s[1],h=n*20;top=122-h;
+  if(s[2]=="g")o+='<rect x="52" y="76" width="60" height="46" fill="#2a2030"/><rect x="288" y="76" width="60" height="46" fill="#2a2030"/><path d="M48 76l34-24 34 24zM284 76l34-24 34 24z" fill="#17121c"/><g fill="#ffd36b"><rect x="62" y="88" width="10" height="12"/><rect x="92" y="88" width="10" height="12"/><rect x="298" y="88" width="10" height="12"/><rect x="328" y="88" width="10" height="12"/></g>';
+  o+='<rect x="120" y="'+top+'" width="160" height="'+h+'" fill="#2b2230"/>';
+  if(s[2]=="g")o+='<path d="M112 '+top+'l88-34 88 34z" fill="#17121c"/><rect x="236" y="'+(top-30)+'" width="10" height="24" fill="#17121c"/><rect x="154" y="'+(top-26)+'" width="10" height="20" fill="#17121c"/>';
+  else if(s[2]=="p"){o+='<path d="M112 '+top+'h176l-88-26z" fill="#3a3040"/>';for(k=0;k<5;k++)o+='<rect x="'+(130+k*35)+'" y="'+top+'" width="6" height="'+h+'" fill="#4a4050"/>'}
+  else o+='<rect x="112" y="'+(top-6)+'" width="176" height="8" fill="#17121c"/>';
+  for(y=0;y<n;y++)for(x=0;x<6;x++)if(!(y==n-1&&(x==2||x==3)))o+='<rect x="'+(134+x*24)+'" y="'+(top+6+y*20)+'" width="12" height="11" rx="1" fill="'+(((x*5+y*3)%4==0)?'#3a3340':'#ffd36b')+'"/>';
+  o+='<path d="M188 122v-20q12-12 24 0v20z" fill="#ffd36b"/><rect x="178" y="120" width="44" height="4" fill="#4a4050"/><circle cx="200" cy="'+(top-10)+'" r="14" fill="#000" opacity=".45"/><text x="200" y="'+(top-3)+'" font-size="20" text-anchor="middle">'+e+'</text>';
+ }else if(t=="s"){
+  o+='<rect x="80" y="50" width="240" height="72" fill="#2b2230"/><path d="M76 50h248l-12 18H88z" fill="#c9a24a"/><rect x="96" y="76" width="208" height="40" fill="#ffd36b" opacity=".85"/><path d="M96 92h208M96 106h208" stroke="#6b4a1e" stroke-width="3"/>';
+  for(k=0;k<22;k++)o+='<rect x="'+(100+k*9)+'" y="'+(78+(k%2)*14)+'" width="6" height="12" fill="'+["#8a2a2a","#2f5d7a","#3d6b4a","#6b4f2a"][k%4]+'"/>';
+  o+='<text x="200" y="64" font-size="18" text-anchor="middle">'+e+'</text>';
+ }else if(t=="t"){
+  o+='<rect y="118" width="400" height="32" fill="#4a3220"/><path d="M200 0L150 120h100z" fill="#fff" opacity=".13"/><path d="M0 0h110q-30 50-10 150H0zM400 0H290q30 50 10 150h100z" fill="#8a1e30"/><text x="200" y="100" font-size="48" text-anchor="middle">'+e+'</text>';
+ }else if(t=="i"){
+  o+='<rect y="108" width="400" height="42" fill="#3a2a22"/><circle cx="200" cy="52" r="36" fill="#ffd36b" opacity=".2"/><path d="M200 0v34" stroke="#ddd"/><path d="M186 34h28l-6 14h-16z" fill="#ffd36b"/><ellipse cx="200" cy="114" rx="96" ry="13" fill="#f1e8d6" opacity=".92"/><text x="200" y="104" font-size="40" text-anchor="middle">'+e+'</text>';
+ }else{
+  var g=s[1];
+  if(g=="g"){for(k=0;k<9;k++)o+='<circle cx="'+(k*50)+'" cy="126" r="24" fill="#1f4a28"/>'}
+  else if(g=="r"){o+='<rect y="124" width="400" height="26" fill="#2a2a2e"/><path d="M0 132h400M0 144h400" stroke="#8a8a90" stroke-width="3"/>'}
+  else o+='<rect y="112" width="400" height="38" fill="#10304f"/><path d="M0 120q25-8 50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0" stroke="#7fb6e0" stroke-width="2" fill="none"/>';
+  o+='<text x="200" y="100" font-size="52" text-anchor="middle">'+e+'</text>';
+ }
+ return '<svg viewBox="0 0 400 150" role="img" aria-label="Illustration de l’enquête"><g filter="url(#wc)">'+o+'</g></svg>';
+}
+
+var MAX=6,app=document.getElementById("app"),pick=-1,msg="";
+var day=Math.floor((Date.now()-new Date().getTimezoneOffset()*6e4)/864e5);
+var C=CASES[day%CASES.length];
+function load(){try{return JSON.parse(localStorage.getItem("enq1"))||{}}catch(e){return {}}}
+function save(){try{localStorage.setItem("enq1",JSON.stringify(S))}catch(e){}}
+var S=load();
+if(S.day!==day){S={day:day,asked:[],res:null,streak:S.streak||0,last:S.last||0,wins:S.wins||0,played:S.played||0}}
+function streak(){return S.last>=day-1?S.streak:0}
+function shareText(){var r=S.res;return "🔎 Enquête du jour n°"+(day%1000)+" — "+(r.won?"résolue en "+r.q+" question"+(r.q>1?"s":"")+" ✅":"classée sans suite ❌")}
+function render(){
+ var left=mx()-S.asked.length,h="";
+ h+='<div class="top"><span>Série : '+streak()+' jour'+(streak()>1?'s':'')+'</span><span>Enquête n°'+(day%1000)+'</span></div><div class="tape"></div>';
+ var CI=day%CASES.length,T=THEMES[CI];
+ h+=defs()+'<div class="pic hero">'+scene(CI,T)+'<img src="images/c'+CI+'.jpg" alt=""></div>';
+ h+='<h1>'+C.t+'</h1><div class="card intro">'+C.i+'</div>';
+ if(S.res){
+  var r=S.res;
+  h+='<div class="card"><span class="stamp '+(r.won?'w':'l')+'">'+(r.won?'Affaire résolue':'Classée sans suite')+'</span>';
+  h+='<p>'+(r.won?'Bien vu : ':'Le coupable était '+C.s[C.c].n+'. ')+C.x+'</p>';
+  h+='<pre>'+shareText()+'</pre><button class="btn" data-act="share">Partager le résultat</button><span class="hint" id="sh">'+msg+'</span>';
+  h+='<p class="hint">Parties jouées : '+S.played+' · Victoires : '+S.wins+'. Nouvelle enquête demain à minuit.</p></div>';
+ }else{
+  var d='';for(var k=0;k<mx();k++)d+='<span class="'+(k<left?'on':'')+'"></span>';
+  h+='<div class="count"><span>Questions restantes : '+left+'</span><span class="dots">'+d+'</span></div>';
+  if(streak()>=3)h+='<p class="hint">Bonus de série : +'+(streak()>=7?2:1)+' question'+(streak()>=7?'s':'')+' aujourd’hui.</p>';
+ }
+ C.s.forEach(function(s,si){
+  h+='<div class="card" style="border-top:5px solid '+AV[si]+'"><div class="who"><span class="pic av">'+face(CI*3+si,s.n,s.r)+'<img src="images/s'+CI+'-'+si+'.jpg" alt=""></span><div><h2>'+s.n+'</h2><div class="role">'+s.r+'</div></div></div>';
+  Q.forEach(function(q,qi){
+   var asked=S.asked.some(function(a){return a[0]===si&&a[1]===qi});
+   if(asked)h+='<div class="a"><small>'+q+'</small>'+s.a[qi]+'</div>';
+   else if(!S.res)h+='<button class="q" data-s="'+si+'" data-q="'+qi+'"'+(left<1?' disabled':'')+'>'+q+'</button>';
+  });
+  h+='</div>';
+ });
+ if(!S.res){
+  h+='<div class="card"><h2>Votre accusation</h2><p class="hint">Vous pouvez accuser à tout moment. Une seule tentative.</p>';
+  if(pick<0)C.s.forEach(function(s,si){h+='<button class="btn alt" data-acc="'+si+'">Accuser '+s.n+'</button>'});
+  else h+='<p>Accuser <b>'+C.s[pick].n+'</b> ?</p><button class="btn" data-act="ok">Confirmer</button><button class="btn alt" data-act="no">Annuler</button>';
+  h+='</div>';
+ }
+ app.innerHTML=h;app.querySelectorAll("img").forEach(function(m){m.addEventListener("error",function(){m.remove()})});
+}
+app.addEventListener("click",function(e){
+ var b=e.target.closest("button");if(!b||b.disabled)return;
+ var y=window.scrollY;
+ if(b.dataset.q!==undefined&&!S.res&&S.asked.length<mx()){S.asked.push([+b.dataset.s,+b.dataset.q]);save()}
+ else if(b.dataset.acc!==undefined){pick=+b.dataset.acc}
+ else if(b.dataset.act==="no"){pick=-1}
+ else if(b.dataset.act==="invite"){
+  var u=location.href.split("#")[0],tx="Je joue à l’Enquête du jour. Sauras-tu trouver le coupable ?",ok=function(){S.shared=1;save();render()};
+  if(navigator.share){navigator.share({text:tx,url:u}).then(ok).catch(function(){})}else{try{navigator.clipboard.writeText(tx+" "+u).then(ok)}catch(err){}}
+  return}
+ else if(b.dataset.act==="ok"){
+  var won=pick===C.c;S.res={won:won,q:S.asked.length,pick:pick};
+  S.played++;if(won){S.wins++;S.streak=(S.last===day-1)?S.streak+1:1;S.last=day}else{S.streak=0;S.last=day}
+  pick=-1;save();y=0;window.scrollTo(0,0);
+ }
+ else if(b.dataset.act==="share"){
+  var t=shareText();
+  try{if(navigator.share){navigator.share({text:t}).catch(function(){})}else{navigator.clipboard.writeText(t).then(function(){msg=" Copié !";render()})}}catch(err){msg=" Copiez le texte ci-dessus."}
+ }
+ render();window.scrollTo(0,y);
+});
+render();
+
+/* Aucune fausse publicité récompensée : les enquêtes restent gratuites. */
+
+if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}
+</script>
+<script>
+/* ===== Mini-jeux : labyrinthes du monde (module indépendant de l'enquête) ===== */
+(function(){
+"use strict";
+var root=document.getElementById("mazes");if(!root)return;
+var KEY="mz1",EF="system-ui,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif";
+var DIR=[{x:0,y:-1,b:1,o:4},{x:1,y:0,b:2,o:8},{x:0,y:1,b:4,o:1},{x:-1,y:0,b:8,o:2}];
+var CN=[
+{f:"🇫🇷",n:"France",p:"Les jardins de Versailles",w:9,h:9,loops:0,lv:1,pl:"🚶",go:"⛲",gn:"la fontaine",pal:{bg:"#9fc48a",fl:"#f1e7c8",wl:"#2f6f3a",ac:"#c9a227"},fact:"Le Labyrinthe de Versailles, voulu par Louis XIV, comptait 39 fontaines inspirées des fables d’Ésope."},
+{f:"🇬🇧",n:"Royaume-Uni",p:"Le labyrinthe de Hampton Court",w:11,h:11,loops:6,lv:2,pl:"🎩",go:"👑",gn:"la couronne",pal:{bg:"#8fb07a",fl:"#e8e2cf",wl:"#3a5f2a",ac:"#a23b3b"},fact:"Le labyrinthe de Hampton Court, près de Londres, est l’un des plus anciens labyrinthes de haies encore existants."},
+{f:"🇮🇹",n:"Italie",p:"Le labyrinthe de bambous de la Masone",w:10,h:10,loops:0,lv:2,pl:"🛵",go:"🍝",gn:"la trattoria",items:{n:3,e:"🎭",l:"masques"},pal:{bg:"#c9d39a",fl:"#f2ead2",wl:"#7d8f2f",ac:"#b5651d"},fact:"Le Labirinto della Masone, près de Parme, est un immense labyrinthe de bambous ouvert en 2015."},
+{f:"🇪🇬",n:"Égypte",p:"Le labyrinthe des pharaons",w:11,h:11,loops:0,lv:2,pl:"🐪",go:"🔺",gn:"la pyramide",items:{n:3,e:"🏺",l:"amphores"},pal:{bg:"#d9b878",fl:"#f0d9a0",wl:"#a8742f",ac:"#2a6fb0"},fact:"Dans l’Antiquité, Hérodote décrivait un gigantesque labyrinthe égyptien qu’il jugeait plus impressionnant que les pyramides."},
+{f:"🇲🇦",n:"Maroc",p:"La médina de Fès",w:11,h:11,loops:3,lv:2,pl:"🧞",go:"🕌",gn:"la mosquée",timed:1,pal:{bg:"#d79c7a",fl:"#f2c9a0",wl:"#b3412a",ac:"#1e6b66"},fact:"La médina de Fès, avec ses milliers de ruelles, est réputée être l’un des plus grands labyrinthes urbains du monde."},
+{f:"🇬🇷",n:"Grèce",p:"Le labyrinthe du Minotaure",w:11,h:11,loops:0,lv:3,pl:"🏃",go:"☀️",gn:"la lumière du jour",fog:2.5,pal:{bg:"#9ec0dc",fl:"#f4f1e8",wl:"#2a6fb0",ac:"#c9a227"},fact:"Selon la légende, Thésée a retrouvé la sortie du labyrinthe du Minotaure grâce au fil d’Ariane."},
+{f:"🇨🇳",n:"Chine",p:"Le jardin des fleurs jaunes",w:11,h:11,loops:0,lv:3,pl:"🐼",go:"🏯",gn:"le pavillon",items:{n:4,e:"🏮",l:"lanternes"},timed:1,pal:{bg:"#d6a08a",fl:"#f6e3c4",wl:"#b3302a",ac:"#c9a227"},fact:"Le Vieux Palais d’Été de Pékin abritait un labyrinthe de briques surnommé « le jardin des fleurs jaunes »."},
+{f:"🇯🇵",n:"Japon",p:"Le jardin zen au crépuscule",w:10,h:10,loops:0,lv:3,pl:"🥷",go:"⛩️",gn:"le torii",fog:3,items:{n:3,e:"🌸",l:"fleurs de cerisier"},pal:{bg:"#b9c2b0",fl:"#e6ebe0",wl:"#4a4a52",ac:"#d9577a"},fact:"En japonais, un labyrinthe se dit « meiro » (迷路)."},
+{f:"🇮🇳",n:"Inde",p:"Le Bhul-bhulaiya de Lucknow",w:12,h:12,loops:0,lv:3,pl:"🐘",go:"🏰",gn:"le palais",items:{n:3,e:"🔑",l:"clés"},timed:1,pal:{bg:"#d8a3bd",fl:"#f7d7e0",wl:"#a23b72",ac:"#e0a020"},fact:"À Lucknow, le Bara Imambara abrite un célèbre dédale de couloirs, le Bhul-bhulaiya, construit à la fin du XVIIIe siècle."}
+];
+function today(){return Math.floor((Date.now()-new Date().getTimezoneOffset()*6e4)/864e5)}
+var PR;try{PR=JSON.parse(localStorage.getItem(KEY))||{}}catch(e){PR={}}
+PR.done=PR.done||{};PR.total=PR.total||0;
+var AC=null;
+function tone(k){if(PR.snd===0)return;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();var q={item:[[660,.08],[880,.1]],win:[[523,.1],[659,.1],[784,.1],[1047,.25]],lose:[[220,.25],[165,.35]],lock:[[200,.12]]}[k],t=AC.currentTime;q.forEach(function(n){var o=AC.createOscillator(),g=AC.createGain();o.type="triangle";o.frequency.value=n[0];g.gain.setValueAtTime(.12,t);g.gain.exponentialRampToValueAtTime(.0001,t+n[1]);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+n[1]);t+=n[1]*.9})}catch(e){}}
+function buzz(p){if(PR.snd===0)return;try{navigator.vibrate&&navigator.vibrate(p)}catch(e){}}
+function streakM(){return PR.last>=today()-1?(PR.str||0):0}
+function confetti(){try{if(window.matchMedia&&matchMedia("(prefers-reduced-motion:reduce)").matches)return;var w=document.querySelector(".mz-cvw");if(!w)return;var e=["🎉","✨","⭐",G.c.pl,G.c.go],h="",i;for(i=0;i<22;i++)h+='<span class="mz-cf" style="left:'+((Math.random()*94)|0)+'%;animation-delay:'+((Math.random()*400)|0)+'ms">'+e[i%5]+'</span>';var d=document.createElement("div");d.className="mz-cfw";d.innerHTML=h;w.style.position="relative";w.appendChild(d);setTimeout(function(){d.remove()},2400)}catch(x){}}
+function sv(){try{localStorage.setItem(KEY,JSON.stringify(PR))}catch(e){}}
+function stars(n){return"★★★".slice(0,n)+"☆☆☆".slice(0,3-n)}
+
+/* ---- génération ---- */
+function rng(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function gen(w,h,r,loops){
+ var g=[],seen=[],i,st=[0],k;
+ for(i=0;i<w*h;i++){g.push(0);seen.push(false)}
+ seen[0]=true;
+ while(st.length){
+  var c=st[st.length-1],x=c%w,y=(c/w)|0,op=[];
+  for(k=0;k<4;k++){var nx=x+DIR[k].x,ny=y+DIR[k].y;if(nx>=0&&ny>=0&&nx<w&&ny<h&&!seen[ny*w+nx])op.push(k)}
+  if(!op.length){st.pop();continue}
+  var d=DIR[op[(r()*op.length)|0]],n=(y+d.y)*w+x+d.x;
+  g[c]|=d.b;g[n]|=d.o;seen[n]=true;st.push(n);
+ }
+ for(k=0;k<loops;k++){
+  var X=(r()*w)|0,Y=(r()*h)|0,D=DIR[(r()*4)|0],NX=X+D.x,NY=Y+D.y;
+  if(NX>=0&&NY>=0&&NX<w&&NY<h){g[Y*w+X]|=D.b;g[NY*w+NX]|=D.o}
+ }
+ return g;
+}
+function bfs(g,w,h,s){
+ var d=[],i,q=[s],qi=0;for(i=0;i<w*h;i++)d.push(-1);d[s]=0;
+ while(qi<q.length){
+  var c=q[qi++],x=c%w,y=(c/w)|0;
+  for(var k=0;k<4;k++)if(g[c]&DIR[k].b){var n=(y+DIR[k].y)*w+x+DIR[k].x;if(d[n]<0){d[n]=d[c]+1;q.push(n)}}
+ }
+ return d;
+}
+function build(c,seed){
+ var r=rng(seed),w=c.w,h=c.h,g=gen(w,h,r,c.loops),d=bfs(g,w,h,0),ex=0,i;
+ for(i=0;i<w*h;i++)if(d[i]>d[ex])ex=i;
+ var items=[];
+ if(c.items){
+  var cand=[];for(i=1;i<w*h;i++)if(i!==ex&&d[i]>=4)cand.push(i);
+  for(i=cand.length-1;i>0;i--){var j=(r()*(i+1))|0,t=cand[i];cand[i]=cand[j];cand[j]=t}
+  var gaps=[4,2,0];
+  for(var gi=0;gi<gaps.length&&items.length<c.items.n;gi++){
+   for(i=0;i<cand.length&&items.length<c.items.n;i++){
+    var a=cand[i];if(items.indexOf(a)>-1)continue;
+    var ok=true,pts=items.concat([0,ex]);
+    for(var m=0;m<pts.length;m++){var dx=Math.abs(a%w-pts[m]%w),dy=Math.abs(((a/w)|0)-((pts[m]/w)|0));if(dx+dy<gaps[gi]){ok=false;break}}
+    if(ok)items.push(a);
+   }
+  }
+ }
+ var cur=0,rest=items.slice(),len=0;
+ while(rest.length){var dd=bfs(g,w,h,cur),bi=0;for(i=1;i<rest.length;i++)if(dd[rest[i]]<dd[rest[bi]])bi=i;len+=dd[rest[bi]];cur=rest[bi];rest.splice(bi,1)}
+ len+=bfs(g,w,h,cur)[ex];
+ return{g:g,w:w,h:h,exit:ex,items:items,limit:c.timed?Math.round(len*1.5+30):0,len:len};
+}
+
+/* ---- état ---- */
+var G=null,tm=null,drag=false,hold=null,fab=null;
+function stopClock(){if(tm){clearInterval(tm);tm=null}}
+function objective(c){
+ var o=c.items?"Ramasse les "+c.items.n+" "+c.items.l+" "+c.items.e+", puis atteins "+c.gn+" "+c.go+".":"Atteins "+c.gn+" "+c.go+".";
+ if(c.fog)o+=" Brouillard : tu ne vois qu’autour de toi, ta mémoire fait le reste.";
+ return o;
+}
+function fmt(ms){var s=Math.max(0,Math.ceil(ms/1000)),m=(s/60)|0;return m+":"+("0"+(s%60)).slice(-2)}
+
+function menu(){
+ stopClock();G=null;
+ var d=today(),alld=CN.every(function(c,i){return PR.done[i]===d}),h='<div class="tape"></div><h2 class="mz-title">Mini-jeux · Labyrinthes du monde</h2><p class="hint">'+CN.length+' pays, '+CN.length+' défis. Un nouveau labyrinthe par pays chaque jour. Réussis : '+PR.total+'.'+(streakM()?' · Série : '+streakM()+' jour'+(streakM()>1?'s':''):'')+(alld?' · 🏆 Tous les pays réussis aujourd’hui !':'')+'</p><button class="btn alt" data-mz="snd">'+(PR.snd===0?'🔇 Son : non':'🔊 Son : oui')+'</button><div class="mz-grid">';
+ CN.forEach(function(c,i){
+  h+='<button class="mz-tile" data-mz="play" data-i="'+i+'" aria-label="'+c.n+', '+stars(c.lv)+(PR.done[i]===d?', réussi aujourd’hui':'')+'"><span class="mz-fl">'+c.f+'</span><b>'+c.n+'</b><small>'+stars(c.lv)+(PR.bs&&PR.bs[i]?' '+'⭐⭐⭐'.slice(0,PR.bs[i]):'')+'</small>'+(PR.done[i]===d?'<i>✅</i>':'')+'</button>';
+ });
+ root.innerHTML=h+'</div>';
+}
+
+function start(i,daily,seed){
+ stopClock();
+ var c=CN[i];
+ if(seed==null)seed=daily?today()*1000+i*17+1:Math.floor(Math.random()*1e9)+1;
+ var m=build(c,seed);
+ G={c:c,i:i,daily:daily,seed:seed,g:m.g,w:m.w,h:m.h,exit:m.exit,items:m.items,limit:m.limit,len:m.len,pos:0,moves:0,got:{},count:0,t:0,go:false,state:"play",seen:[],trail:[0],all:false};
+ var k;for(k=0;k<m.w*m.h;k++)G.seen.push(false);
+ reveal();view();
+}
+function view(){
+ var c=G.c;
+ root.innerHTML='<div class="tape"></div><button class="btn alt" data-mz="menu">← Pays</button>'+
+ '<h2 class="mz-title">'+c.f+' '+c.n+'</h2><div class="role">'+c.p+' · '+stars(c.lv)+' · '+(G.daily?'Labyrinthe du jour':'Entraînement')+'</div>'+
+ '<div class="card">'+objective(c)+(G.limit?' Temps : '+fmt(G.limit*1000)+'.':'')+'</div>'+
+ '<div class="mz-hud"><span id="mzM"></span><span id="mzI"></span><span id="mzT"></span></div>'+
+ '<div class="mz-cvw"><canvas id="mzC" role="img" aria-label="Labyrinthe : '+c.p+'. Glisse le doigt ou utilise les flèches."></canvas></div>'+
+ '<div class="mz-pad"><button class="u" data-d="0" aria-label="Haut">▲</button><button class="l" data-d="3" aria-label="Gauche">◀</button><button class="d" data-d="2" aria-label="Bas">▼</button><button class="r" data-d="1" aria-label="Droite">▶</button></div>'+
+ '<p class="hint" id="mzMsg" aria-live="polite">Glisse le doigt sur le labyrinthe ou utilise les flèches.</p><div id="mzRes"></div>'+
+ '<button class="btn alt" data-mz="again">Recommencer</button><button class="btn alt" data-mz="new">Nouveau labyrinthe</button>';
+ G.cv=document.getElementById("mzC");
+ bind();layout();hud();draw();
+ try{root.scrollIntoView({block:"start"})}catch(e){}
+}
+function say(t){var e=document.getElementById("mzMsg");if(e)e.textContent=t}
+function hud(){
+ var a=document.getElementById("mzM"),b=document.getElementById("mzI"),t=document.getElementById("mzT");
+ if(a)a.textContent="Pas : "+G.moves;
+ if(b)b.textContent=G.items.length?G.c.items.e+" "+G.count+"/"+G.items.length:"";
+ if(t)t.textContent=G.limit?"⏱ "+fmt(G.limit*1000-G.t):(G.go?"⏱ "+fmt(G.t):"");
+}
+function reveal(){
+ var w=G.w,h=G.h,px=G.pos%w,py=(G.pos/w)|0,r=G.c.fog||0,x,y;
+ if(!r){return}
+ for(y=Math.max(0,Math.floor(py-r));y<=Math.min(h-1,Math.ceil(py+r));y++)
+  for(x=Math.max(0,Math.floor(px-r));x<=Math.min(w-1,Math.ceil(px+r));x++)
+   if((x-px)*(x-px)+(y-py)*(y-py)<=r*r)G.seen[y*w+x]=true;
+}
+function lvl(i){
+ if(!G.c.fog||G.all)return 2;
+ var w=G.w,dx=i%w-G.pos%w,dy=((i/w)|0)-((G.pos/w)|0);
+ if(dx*dx+dy*dy<=G.c.fog*G.c.fog)return 2;
+ return G.seen[i]?1:0;
+}
+
+/* ---- dessin ---- */
+function layout(){
+ var cv=G.cv,avail=Math.min(520,root.clientWidth-32),pad=6,dpr=window.devicePixelRatio||1;
+ var cs=Math.max(12,Math.floor((avail-2*pad)/G.w));
+ G.cs=cs;G.pad=pad;G.dpr=dpr;G.cw=cs*G.w+2*pad;G.ch=cs*G.h+2*pad;
+ cv.style.width=G.cw+"px";cv.style.height=G.ch+"px";
+ cv.width=Math.round(G.cw*dpr);cv.height=Math.round(G.ch*dpr);
+}
+function emo(ctx,e,cx,cy,sz,alpha){
+ ctx.save();ctx.globalAlpha=alpha==null?1:alpha;ctx.font=Math.round(sz)+"px "+EF;ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(e,cx,cy+sz*0.05);ctx.restore();
+}
+function draw(){
+ if(!G||!G.cv)return;
+ var ctx=G.cv.getContext("2d"),w=G.w,h=G.h,cs=G.cs,pad=G.pad,P=G.c.pal,i,x,y,L=[];
+ ctx.setTransform(G.dpr,0,0,G.dpr,0,0);
+ ctx.fillStyle=P.bg;ctx.fillRect(0,0,G.cw,G.ch);
+ for(i=0;i<w*h;i++){
+  L.push(lvl(i));x=i%w;y=(i/w)|0;
+  ctx.fillStyle=L[i]?P.fl:"#161a20";ctx.fillRect(pad+x*cs,pad+y*cs,cs,cs);
+  if(L[i]===1){ctx.fillStyle="rgba(0,0,0,.35)";ctx.fillRect(pad+x*cs,pad+y*cs,cs,cs)}
+ }
+ ctx.fillStyle=P.ac;ctx.globalAlpha=.25;ctx.fillRect(pad,pad,cs,cs);ctx.globalAlpha=1;
+ if(G.trail.length>1){
+  ctx.strokeStyle=P.ac;ctx.globalAlpha=.45;ctx.lineWidth=Math.max(2,cs*.16);ctx.lineCap="round";ctx.lineJoin="round";ctx.beginPath();
+  G.trail.forEach(function(p,k){var px=pad+(p%w+.5)*cs,py=pad+(((p/w)|0)+.5)*cs;if(k)ctx.lineTo(px,py);else ctx.moveTo(px,py)});
+  ctx.stroke();ctx.globalAlpha=1;
+ }
+ var ex=G.exit,exx=pad+(ex%w+.5)*cs,exy=pad+(((ex/w)|0)+.5)*cs,locked=G.count<G.items.length;
+ if(L[ex]>0){emo(ctx,G.c.go,exx,exy,cs*.62,locked?.45:1);if(locked)emo(ctx,"🔒",exx+cs*.22,exy+cs*.22,cs*.3)}
+ G.items.forEach(function(p){if(!G.got[p]&&L[p]>0)emo(ctx,G.c.items.e,pad+(p%w+.5)*cs,pad+(((p/w)|0)+.5)*cs,cs*.58)});
+ ctx.strokeStyle=P.wl;ctx.lineWidth=Math.max(2,cs*.14);ctx.lineCap="round";ctx.beginPath();
+ for(i=0;i<w*h;i++){
+  if(!L[i])continue;x=i%w;y=(i/w)|0;
+  var X=pad+x*cs,Y=pad+y*cs,v=G.g[i];
+  if(!(v&1)){ctx.moveTo(X,Y);ctx.lineTo(X+cs,Y)}
+  if(!(v&2)){ctx.moveTo(X+cs,Y);ctx.lineTo(X+cs,Y+cs)}
+  if(!(v&4)){ctx.moveTo(X,Y+cs);ctx.lineTo(X+cs,Y+cs)}
+  if(!(v&8)){ctx.moveTo(X,Y);ctx.lineTo(X,Y+cs)}
+ }
+ ctx.stroke();
+ var qx=pad+(G.pos%w+.5)*cs,qy=pad+(((G.pos/w)|0)+.5)*cs;
+ ctx.fillStyle="rgba(255,255,255,.8)";ctx.beginPath();ctx.arc(qx,qy,cs*.4,0,6.2832);ctx.fill();
+ ctx.strokeStyle=P.ac;ctx.lineWidth=2;ctx.stroke();
+ emo(ctx,G.c.pl,qx,qy,cs*.55);
+}
+
+/* ---- jeu ---- */
+function tick(){
+ var n=Date.now(),dt=n-G.last;G.last=n;if(dt>1000||dt<0)dt=200;G.t+=dt;
+ if(G.limit&&G.t>=G.limit*1000){G.t=G.limit*1000;hud();lose();return}
+ hud();
+}
+function move(d){
+ if(!G||G.state!=="play"||!(G.g[G.pos]&DIR[d].b))return false;
+ G.pos=((((G.pos/G.w)|0)+DIR[d].y)*G.w)+G.pos%G.w+DIR[d].x;
+ G.moves++;G.trail.push(G.pos);
+ if(!G.go){G.go=true;G.last=Date.now();tm=setInterval(tick,200)}
+ reveal();
+ if(!G.got[G.pos]&&G.items.indexOf(G.pos)>-1){G.got[G.pos]=1;G.count++;say(G.c.items.e+" Trouvé ! Il en reste "+(G.items.length-G.count)+".");tone("item");buzz(30)}
+ if(G.pos===G.exit){
+  if(G.count>=G.items.length){hud();draw();win();return true}
+  tone("lock");say("🔒 La sortie est verrouillée : il reste "+(G.items.length-G.count)+" "+G.c.items.l+".");
+ }
+ hud();draw();return true;
+}
+function win(){
+ stopClock();G.state="won";G.all=true;draw();
+ var ra=G.moves/Math.max(1,G.len),st=ra<=1.8?3:ra<=3.2?2:1,rec="",d=today();
+ PR.total++;PR.bs=PR.bs||{};PR.bt=PR.bt||{};
+ if(G.daily){PR.done[G.i]=d;if(st>(PR.bs[G.i]||0))PR.bs[G.i]=st;if(PR.last!==d){PR.str=(PR.last===d-1)?(PR.str||0)+1:1;PR.last=d}}
+ if(G.go&&(!PR.bt[G.i]||G.t<PR.bt[G.i])){PR.bt[G.i]=G.t;rec=" 🏅 Record de temps !"}
+ sv();tone("win");buzz([60,40,60]);confetti();
+ document.getElementById("mzRes").innerHTML='<div class="card"><span class="stamp w">Bravo !</span><p class="mz-st">'+"⭐⭐⭐".slice(0,st)+'</p><p>'+G.c.n+' : réussi en '+G.moves+' pas'+(G.go?' et '+fmt(G.t):'')+'.'+rec+'</p><p class="hint">'+(st<3?'Chemin le plus court : '+G.len+' pas. ':'Parcours quasi parfait ! ')+G.c.fact+'</p><button class="btn" data-mz="new">Nouveau labyrinthe</button><button class="btn alt" data-mz="menu">Autres pays</button></div>';
+ say("");
+}
+function lose(){
+ stopClock();G.state="lost";G.all=true;draw();tone("lose");buzz(200);
+ document.getElementById("mzRes").innerHTML='<div class="card"><span class="stamp l">Temps écoulé</span><p>Pas de panique, essaie encore !</p><button class="btn" data-mz="again">Réessayer</button><button class="btn alt" data-mz="new">Nouveau labyrinthe</button></div>';
+ say("");
+}
+
+/* ---- commandes ---- */
+function follow(e){
+ if(!G||G.state!=="play")return;
+ var r=G.cv.getBoundingClientRect(),fx=Math.floor((e.clientX-r.left-G.pad)/G.cs),fy=Math.floor((e.clientY-r.top-G.pad)/G.cs),n=0;
+ while(n++<4&&G&&G.state==="play"){
+  var dx=fx-G.pos%G.w,dy=fy-((G.pos/G.w)|0);
+  if(!dx&&!dy)break;
+  var hz=Math.abs(dx)>=Math.abs(dy),a=hz?(dx>0?1:3):(dy>0?2:0),b=hz?(dy?(dy>0?2:0):-1):(dx?(dx>0?1:3):-1);
+  if(!move(a)&&(b<0||!move(b)))break;
+ }
+}
+function bind(){
+ var cv=G.cv;
+ cv.addEventListener("pointerdown",function(e){drag=true;try{cv.setPointerCapture(e.pointerId)}catch(x){}follow(e)});
+ cv.addEventListener("pointermove",function(e){if(drag)follow(e)});
+ ["pointerup","pointercancel"].forEach(function(t){cv.addEventListener(t,function(){drag=false})});
+}
+function stopHold(){if(hold){clearTimeout(hold.a);clearInterval(hold.b);hold=null}}
+root.addEventListener("pointerdown",function(e){
+ var b=e.target.closest&&e.target.closest(".mz-pad button");if(!b)return;
+ var d=+b.dataset.d;stopHold();move(d);
+ hold={a:setTimeout(function(){hold.b=setInterval(function(){move(d)},110)},320)};
+});
+["pointerup","pointercancel","pointerleave"].forEach(function(t){root.addEventListener(t,stopHold)});
+root.addEventListener("click",function(e){
+ var p=e.target.closest(".mz-pad button");
+ if(p){if(e.detail===0)move(+p.dataset.d);return}
+ var b=e.target.closest("[data-mz]");if(!b)return;
+ var a=b.dataset.mz;
+ if(a==="play")start(+b.dataset.i,true);
+ else if(a==="snd"){PR.snd=PR.snd===0?1:0;sv();menu();if(PR.snd!==0)tone("item")}
+ else if(a==="menu"){menu();try{root.scrollIntoView({block:"start"})}catch(x){}}
+ else if(a==="again")start(G.i,G.daily,G.seed);
+ else if(a==="new")start(G.i,false);
+});
+document.addEventListener("keydown",function(e){
+ if(!G||G.state!=="play"||e.ctrlKey||e.metaKey||e.altKey)return;
+ var k=e.key,d=-1;
+ if(k==="ArrowUp"||k==="z"||k==="w")d=0;else if(k==="ArrowRight"||k==="d")d=1;else if(k==="ArrowDown"||k==="s")d=2;else if(k==="ArrowLeft"||k==="q"||k==="a")d=3;
+ if(d<0)return;
+ if(k.indexOf("Arrow")===0)e.preventDefault();
+ move(d);
+});
+window.addEventListener("resize",function(){if(G&&G.cv){layout();draw()}});
+
+/* ---- accès rapide (bouton flottant, masqué quand la section est visible) ---- */
+try{
+ fab=document.createElement("button");fab.className="mz-fab";fab.type="button";fab.textContent="🧩 Mini-jeux";
+ fab.addEventListener("click",function(){root.scrollIntoView({behavior:"smooth",block:"start"})});
+ document.body.appendChild(fab);
+ if("IntersectionObserver" in window){new IntersectionObserver(function(en){fab.style.display=en[0].isIntersecting?"none":""},{threshold:.05}).observe(root)}
+}catch(e){}
+
+menu();
+})();
+</script>
+</body>
+</html>
