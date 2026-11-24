@@ -1,0 +1,28 @@
+ENQUÊTE DU JOUR — VERSION WEB POUR CLOUDFLARE PAGES
+
+Contenu
+- index.html : le jeu (23 enquêtes, une enquête quotidienne)
+- manifest.webmanifest, sw.js et icônes : installation et mode hors ligne
+- images/ : emplacement prévu pour vos images personnelles
+
+Déploiement Cloudflare Pages
+1. Décompressez le ZIP sur votre téléphone ou ordinateur.
+2. Envoyez le dossier/contenu du site à Cloudflare Pages (Direct Upload).
+3. Vérifiez que index.html est à la racine publiée.
+4. Ouvrez le lien HTTPS, puis utilisez le menu du navigateur pour installer l’application.
+
+Règles du jeu
+- Une seule enquête est proposée par jour.
+- Les questions de l’enquête quotidienne sont gratuites.
+- Les enquêtes utilisent des illustrations intégrées au code ; le dossier images/ est prêt à recevoir des visuels supplémentaires.
+- Aucune fausse publicité ou fausse récompense vidéo n’est activée.
+
+Monetag
+La zone publicitaire n’est pas activée dans cette version. Ajoutez uniquement le code officiel fourni pour votre site après validation par Monetag. Une vignette ou une publicité OnClick ne constitue pas une vidéo récompensée et ne doit pas débloquer de bonus.
+
+Mini-jeux de labyrinthe
+Étoiles selon l’efficacité du parcours, records de temps, série de jours, sons et vibrations (désactivables), confettis à la victoire.
+Sous l’enquête du jour : 9 pays (France, Royaume-Uni, Italie, Égypte, Maroc, Grèce, Chine, Japon, Inde), un labyrinthe du jour par pays, avec objets à ramasser, brouillard ou chrono selon les pays. Commandes : glisser le doigt, flèches à l’écran ou clavier. Ce module est indépendant de l’enquête.
+
+Mise à jour
+Le cache du service worker a été changé en enquete-v4 pour forcer le chargement de cette version.
